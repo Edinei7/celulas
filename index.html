@@ -3,17 +3,59 @@
 <head>
   <title>Endereço mais próximo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="font-family: Arial; text-align:center; margin-top:50px;">
 
-  <h2>🔎 Buscando endereço mais próximo...</h2>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+    }
+
+    p {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .botao-rota {
+      font-size: 20px;
+      padding: 14px 24px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .botao-rota:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🔎 Buscando endereço da casa de amor mais próxima de você...</h1>
 
   <script>
     const locais = [
       { nome: "Casa de amor Kirios e Sinchá", endereco: "Rua Diva da silva Rolim, 123", lat: -24.5274, lon: -49.9369 },
-      { nome: "casa de amor Ebenezer", endereco: "Rua Pref. José Torres Neto, 123", lat: -24.5403, lon: -49.9401}
-      //{ nome: "Casa 2", endereco: "Rua Y, 456", lat: -23.5510, lon: -46.6300 }
-      // 👉 Adicione os outros aqui
+      { nome: "Casa de amor Ebenezer", endereco: "Rua Pref. José Torres Neto, 123", lat: -24.5403, lon: -49.9401}
     ];
 
     function distancia(lat1, lon1, lat2, lon2) {
@@ -22,34 +64,42 @@
         Math.pow(lon1 - lon2, 2)
       );
     }
+navigator.geolocation.getCurrentPosition(pos => {
+  const userLat = pos.coords.latitude;
+  const userLon = pos.coords.longitude;
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const userLat = pos.coords.latitude;
-      const userLon = pos.coords.longitude;
+  // Adiciona distância em cada local
+  locais.forEach(local => {
+    local.dist = distancia(userLat, userLon, local.lat, local.lon);
+  });
 
-      let maisProximo = null;
-      let menor = Infinity;
+  // Ordena do mais próximo para o mais longe
+  locais.sort((a, b) => a.dist - b.dist);
 
-      locais.forEach(local => {
-        const d = distancia(userLat, userLon, local.lat, local.lon);
-        if (d < menor) {
-          menor = d;
-          maisProximo = local;
-        }
-      });
+  // Cria HTML de todos os endereços
+  let listaHTML = "";
 
-      document.body.innerHTML = `
-        <h2>📍 Mais próximo:</h2>
-        <p><strong>${maisProximo.nome}</strong></p>
-        <p>${maisProximo.endereco}</p>
-        <br>
-        <button onclick="abrirMapa()">🚗 Abrir rota</button>
-      `;
+  locais.forEach(local => {
+    listaHTML += `
+      <div class="card">
+        <h2>${local.nome}</h2>
+        <p>${local.endereco}</p>
+        <button onclick="abrirMapa(${local.lat}, ${local.lon})" class="botao-rota">
+          🚗 Abrir rota
+        </button>
+      </div>
+    `;
+  });
 
-      window.abrirMapa = function() {
-        window.open(`https://www.google.com/maps?q=${maisProximo.lat},${maisProximo.lon}`);
-      }
-    });
+  document.body.innerHTML = `
+    <h1>📍 Casas de amor mais próximas de você:</h1>
+    ${listaHTML}
+  `;
+
+  window.abrirMapa = function(lat, lon) {
+    window.open('https://www.google.com/maps?q=${lat},${lon}');
+  }
+});
   </script>
 
 </body>
