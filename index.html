@@ -97,7 +97,7 @@ navigator.geolocation.getCurrentPosition(pos => {
   `;
 
   window.abrirMapa = function(lat, lon) {
-    window.open('https://www.google.com/maps?q=${lat},${lon}');
+    window.open(`https://www.google.com/maps?q=${lat},${lon}`);
   }
 });
   </script>
