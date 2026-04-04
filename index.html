@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Endereço mais próximo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:50px;">
+
+  <h2>🔎 Buscando endereço mais próximo...</h2>
+
+  <script>
+    const locais = [
+      { nome: "Casa de amor Kirios e Sinchá", endereco: "Rua Diva da silva Rolim, 123", lat: -24.5274, lon: -49.9369 },
+      { nome: "casa de amor Ebenezer", endereco: "Rua Pref. José Torres Neto, 123", lat: -24.5403, lon: -49.9401}
+      //{ nome: "Casa 2", endereco: "Rua Y, 456", lat: -23.5510, lon: -46.6300 }
+      // 👉 Adicione os outros aqui
+    ];
+
+    function distancia(lat1, lon1, lat2, lon2) {
+      return Math.sqrt(
+        Math.pow(lat1 - lat2, 2) +
+        Math.pow(lon1 - lon2, 2)
+      );
+    }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const userLat = pos.coords.latitude;
+      const userLon = pos.coords.longitude;
+
+      let maisProximo = null;
+      let menor = Infinity;
+
+      locais.forEach(local => {
+        const d = distancia(userLat, userLon, local.lat, local.lon);
+        if (d < menor) {
+          menor = d;
+          maisProximo = local;
+        }
+      });
+
+      document.body.innerHTML = `
+        <h2>📍 Mais próximo:</h2>
+        <p><strong>${maisProximo.nome}</strong></p>
+        <p>${maisProximo.endereco}</p>
+        <br>
+        <button onclick="abrirMapa()">🚗 Abrir rota</button>
+      `;
+
+      window.abrirMapa = function() {
+        window.open(`https://www.google.com/maps?q=${maisProximo.lat},${maisProximo.lon}`);
+      }
+    });
+  </script>
+
+</body>
+</html>
