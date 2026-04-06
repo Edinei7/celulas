@@ -6,11 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* Reset básico */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Arial', sans-serif;
@@ -20,9 +16,9 @@
       min-height: 100vh;
     }
 
-    /* Logo no canto superior direito */
+    /* Logo fixa no canto superior direito */
     .logo {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       width: 100px;
@@ -35,6 +31,7 @@
       margin-bottom: 30px;
       color: #333;
       font-size: 26px;
+      padding-top: 20px;
     }
 
     /* Container dos cards */
@@ -44,6 +41,7 @@
       gap: 20px;
       max-width: 500px;
       margin: 0 auto;
+      padding-bottom: 40px;
     }
 
     /* Cards de local */
@@ -97,6 +95,15 @@
       font-size: 20px;
       margin-top: 50px;
     }
+
+    /* Responsividade */
+    @media (max-width: 500px) {
+      .logo { width: 70px; top: 10px; right: 10px; }
+      h1 { font-size: 20px; }
+      .card h2 { font-size: 18px; }
+      .card p { font-size: 14px; }
+      .botao-rota { font-size: 16px; padding: 12px 0; }
+    }
   </style>
 </head>
 <body>
@@ -130,7 +137,6 @@
       return R * c;
     }
 
-    // Função para abrir mapa
     function abrirMapa(lat, lon) {
       window.open(`https://www.google.com/maps?q=${lat},${lon}`);
     }
@@ -141,10 +147,13 @@
         const userLat = pos.coords.latitude;
         const userLon = pos.coords.longitude;
 
-        // Calcula distância para cada local
-        locais.forEach(local => {
-          local.dist = distancia(userLat, userLon, local.lat, local.lon);
-        });
+        if(locais.length === 0){
+          document.getElementById('cards-container').innerHTML = '<div class="erro">Nenhuma casa de amor cadastrada.</div>';
+          return;
+        }
+
+        // Calcula distância
+        locais.forEach(local => local.dist = distancia(userLat, userLon, local.lat, local.lon));
 
         // Ordena por proximidade
         locais.sort((a, b) => a.dist - b.dist);
@@ -161,10 +170,7 @@
         `).join('');
       },
       erro => {
-        document.body.innerHTML = `
-          <img src="static/logo.png" alt="Logo Igreja local" class="logo">
-          <div class="erro">❌ Permita a localização para usar o site</div>
-        `;
+        document.getElementById('cards-container').innerHTML = '<div class="erro">❌ Permita a localização para usar o site</div>';
       }
     );
   </script>
