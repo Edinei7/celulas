@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Casas de Amor Próximas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Logo no canto superior direito */
+    .logo {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 100px;
+      height: auto;
+      z-index: 1000;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-size: 26px;
+    }
+
+    /* Container dos cards */
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Cards de local */
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
+    .card h2 {
+      color: #444;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    /* Botão moderno com gradient */
+    .botao-rota {
+      width: 100%;
+      padding: 14px 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #28a745, #1e7e34);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s, filter 0.3s;
+    }
+
+    .botao-rota:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    /* Mensagem de erro */
+    .erro {
+      text-align: center;
+      color: red;
+      font-size: 20px;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <img src="static/logo.png" alt="Logo Casa de Amor" class="logo">
+
+  <!-- Título -->
+  <h1>🔎 Buscando casas de amor próximas...</h1>
+
+  <!-- Container dos cards -->
+  <div class="cards-container" id="cards-container"></div>
+
+  <script>
+    const locais = [
+      { nome: "Casa de amor Kirios e Sinchá", endereco: "Rua Diva da silva Rolim, 123", lat: -24.5274, lon: -49.9369 },
+      { nome: "Casa de amor Ebenezer", endereco: "Rua Pref. José Torres Neto, 123", lat: -24.5403, lon: -49.9401 }
+    ];
+
+    // Função para calcular distância em km
+    function distancia(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat/2) ** 2 +
+        Math.cos(lat1 * Math.PI/180) *
+        Math.cos(lat2 * Math.PI/180) *
+        Math.sin(dLon/2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    // Função para abrir mapa
+    function abrirMapa(lat, lon) {
+      window.open(`https://www.google.com/maps?q=${lat},${lon}`);
+    }
+
+    // Obter posição do usuário
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const userLat = pos.coords.latitude;
+        const userLon = pos.coords.longitude;
+
+        // Calcula distância para cada local
+        locais.forEach(local => {
+          local.dist = distancia(userLat, userLon, local.lat, local.lon);
+        });
+
+        // Ordena por proximidade
+        locais.sort((a, b) => a.dist - b.dist);
+
+        // Renderiza cards
+        const container = document.getElementById('cards-container');
+        container.innerHTML = locais.map(local => `
+          <div class="card">
+            <h2>${local.nome}</h2>
+            <p>${local.endereco}</p>
+            <p>📏 Distância: ${local.dist.toFixed(2)} km</p>
+            <button class="botao-rota" onclick="abrirMapa(${local.lat}, ${local.lon})">🚗 Abrir rota</button>
+          </div>
+        `).join('');
+      },
+      erro => {
+        document.body.innerHTML = `
+          <img src="static/logo.png" alt="Logo Igreja local" class="logo">
+          <div class="erro">❌ Permita a localização para usar o site</div>
+        `;
+      }
+    );
+  </script>
+
+</body>
+</html>
